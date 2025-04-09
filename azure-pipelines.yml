@@ -1,0 +1,30 @@
+﻿trigger:
+  - master
+
+pool:
+  name: Default 
+
+variables:
+  buildConfiguration: 'Release'
+
+steps:
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '8.x'  
+    installationPath: $(Agent.ToolsDirectory)/dotnet
+
+- script: dotnet restore neha_quiz4_dotnet.sln
+  displayName: 'Restore NuGet Packages'
+
+- script: dotnet build neha_quiz4_dotnet.sln --configuration $(buildConfiguration)
+  displayName: 'Build .NET Project'
+
+- script: dotnet publish neha_quiz4_dotnet.sln -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)
+  displayName: 'Publish Artifacts'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'WebAppPackage'
+    publishLocation: 'Container'
